@@ -4,10 +4,10 @@
     android:layout_height="match_parent"
     tools:context="com.example.zhang.picfun.SendFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/title_send" />
 
+    <Button
+        android:id="@+id/choosePicButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_choosePic" />
 </FrameLayout>

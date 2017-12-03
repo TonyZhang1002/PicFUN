@@ -21,7 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-
+/*
+    Here is the home fragment class
+    @author zhang
+ */
 public class HomeFragment extends ListFragment {
 
     private String TAG = HomeFragment.class.getName();
