@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
@@ -92,7 +93,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         /*
-        ask for permission if the version is up to 23
+        ask for write permission if the version is up to 23
         @author zhang
          */
         if (Build.VERSION.SDK_INT >= 23) {
@@ -106,6 +107,11 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
             }
+        }
+
+        if (android.os.Build.VERSION.SDK_INT > 9) {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
         }
 
         contextOfApplication = getApplicationContext();
