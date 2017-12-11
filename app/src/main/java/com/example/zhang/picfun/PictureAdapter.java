@@ -41,7 +41,7 @@ public class PictureAdapter extends ArrayAdapter<Picture> {
 
         pictureImage.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
-        pictureImage.setImageResource(p.getImageID());
+        pictureImage.setImageBitmap(p.getBitmap());
         pictureTitle.setText(p.getTitle());
         pictureDescription.setText(p.getDescription());
         return view;

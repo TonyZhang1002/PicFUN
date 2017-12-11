@@ -1,5 +1,7 @@
 package com.example.zhang.picfun;
 
+import android.graphics.Bitmap;
+
 /**
  * Created by zhang on 2017/11/22.
  */
@@ -9,13 +11,13 @@ public class Picture {
     private String title;
     private String description;
     private int userID;
-    private int imageID;
+    private Bitmap bitmap;
 
-    public Picture(String title, String description, int userID, int imageID) {
+    public Picture(String title, String description, int userID, Bitmap bitmap) {
         this.title = title;
         this.description = description;
         this.userID = userID;
-        this.imageID = imageID;
+        this.bitmap = bitmap;
     }
 
     public String getTitle() {
@@ -30,7 +32,7 @@ public class Picture {
         return userID;
     }
 
-    public int getImageID() {
-        return imageID;
+    public Bitmap getBitmap() {
+        return bitmap;
     }
 }

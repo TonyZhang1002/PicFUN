@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,9 +26,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import static android.R.attr.path;
+import static android.R.attr.start;
+import static android.app.Activity.RESULT_OK;
+import static android.content.Context.MODE_PRIVATE;
 
 
 /*
@@ -37,12 +44,16 @@ public class SendFragment extends Fragment {
 
     private View view;
     private Button choose;
+    private Button shoot;
 
     private FTPutils ftpUtils = null;
+    boolean iniFTPflag = false;
 
     private static final int GALLERY_CODE = 1;
 
-    Context applicationContext;
+    Context applicationContext = MainActivity.getContextOfApplication();
+    SharedPreferences sharedPreferences = applicationContext.getSharedPreferences("myImgNameList", MODE_PRIVATE);
+    private int fileSize = 0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,13 +61,17 @@ public class SendFragment extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_send, null);
         choose = (Button) view.findViewById(R.id.choosePicButton);
-        InitFTPServerSetting();
+
+        if(!iniFTPflag) {
+            InitFTPServerSetting();
+        }
+
         return view;
     }
 
     private void InitFTPServerSetting() {
         ftpUtils = FTPutils.getInstance();
-        boolean iniFTPflag = ftpUtils.initFTPSetting("165.227.1.206", 21, "AdminTony", "Www13826568574co");
+        iniFTPflag = ftpUtils.initFTPSetting("165.227.1.206", 21, "AdminTony", "Www13826568574co");
         if(iniFTPflag)
             Log.i("Tony","Connect FTP server success");
     }
@@ -64,7 +79,6 @@ public class SendFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
 
         //When user choose to select photo from their repo
         choose.setOnClickListener(new View.OnClickListener() {
@@ -89,47 +103,48 @@ public class SendFragment extends Fragment {
                     return;
                 }else{
                     Uri uri = data.getData();
-                    convertUri(uri);
+                    saveFile(uri);
+                    Intent intent = new Intent(getActivity(),AddActivity.class);
+                    startActivity(intent);
                 }
+                break;
+
+            default:
                 break;
         }
     }
 
 
     /*
-    convert content uri to file's uri
+    save the file
     @param uri
-    @return Uri
+    @return
      */
-    private Uri convertUri(Uri uri) {
+    private void saveFile(Uri uri) {
         InputStream is;
         try {
             //Uri ----> InputStream
-            applicationContext = MainActivity.getContextOfApplication();
             is = applicationContext.getContentResolver().openInputStream(uri);
             //InputStream ----> Bitmap
             Bitmap bm = BitmapFactory.decodeStream(is);
             is.close();
-            return saveBitmap(bm, "picFun");
+            saveBitmap(bm);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return null;
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
     }
 
     /**
      * write bitmap into a file in SD card, and return the Uri
      * @param bm
-     * @param dirPath
      * @return
      */
-    private Uri saveBitmap(Bitmap bm, String dirPath) {
+    private void saveBitmap(Bitmap bm) {
 
         //create a new directory ot store the picture
-        String tmpPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + dirPath;
+        String tmpPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "picFun";
         File tmpDir = new File(tmpPath);
         if (!tmpDir.exists()){
             tmpDir.mkdirs();
@@ -137,12 +152,20 @@ public class SendFragment extends Fragment {
 
         //create a new file ot store the picture
         String fileName = UUID.randomUUID().toString();
-        File img = new File(tmpDir, fileName + ".png");
+
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        fileSize = sharedPreferences.getInt("FileSize",0);
+        editor.putString("p"+Integer.toString(fileSize),fileName);
+        fileSize++;
+        editor.putInt("FileSize",fileSize);
+        editor.commit();
+
+        File img = new File(tmpDir, fileName + ".jpg");
         try {
             //open the file output stream
             FileOutputStream fos = new FileOutputStream(img);
             //compress the file to the bitmap
-            bm.compress(Bitmap.CompressFormat.PNG, 85, fos);
+            bm.compress(Bitmap.CompressFormat.JPEG, 70, fos);
             //refresh
             fos.flush();
             //close
@@ -152,18 +175,15 @@ public class SendFragment extends Fragment {
             //send broadcast
             applicationContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
             //upload to the FTP server
-            boolean uploadFlag = ftpUtils.uploadFile(tmpPath +"/" + fileName + ".png",fileName + ".png");
+            boolean uploadFlag = ftpUtils.uploadFile(tmpPath +"/" + fileName + ".jpg",fileName + ".jpg");
+            HomeFragment.refreshFlag = true;
             if(uploadFlag) {
                 Log.i("Tony","Upload FTP server success");
             }
-            //return the new uri
-            return uri;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return null;
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
     }
 }
