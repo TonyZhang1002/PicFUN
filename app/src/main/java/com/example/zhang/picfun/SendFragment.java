@@ -46,14 +46,16 @@ public class SendFragment extends Fragment {
     private Button choose;
     private Button shoot;
 
-    private FTPutils ftpUtils = null;
-    boolean iniFTPflag = false;
+    public static FTPutils ftpUtils = null;
+    static boolean iniFTPflag = false;
 
     private static final int GALLERY_CODE = 1;
 
     Context applicationContext = MainActivity.getContextOfApplication();
     SharedPreferences sharedPreferences = applicationContext.getSharedPreferences("myImgNameList", MODE_PRIVATE);
     private int fileSize = 0;
+    String imgMessageFileName = "mesg.txt";
+    public static String fileName;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -69,7 +71,7 @@ public class SendFragment extends Fragment {
         return view;
     }
 
-    private void InitFTPServerSetting() {
+    public static void InitFTPServerSetting() {
         ftpUtils = FTPutils.getInstance();
         iniFTPflag = ftpUtils.initFTPSetting("165.227.1.206", 21, "AdminTony", "Www13826568574co");
         if(iniFTPflag)
@@ -151,7 +153,7 @@ public class SendFragment extends Fragment {
         }
 
         //create a new file ot store the picture
-        String fileName = UUID.randomUUID().toString();
+        fileName = UUID.randomUUID().toString();
 
         SharedPreferences.Editor editor = sharedPreferences.edit();
         fileSize = sharedPreferences.getInt("FileSize",0);

@@ -11,8 +11,14 @@ import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.TextView;
+
+import java.io.File;
+import java.io.RandomAccessFile;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
     Here is the main activity class
@@ -121,6 +127,83 @@ public class MainActivity extends AppCompatActivity {
 
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        if(!SendFragment.iniFTPflag) {
+            SendFragment.InitFTPServerSetting();
+        }
+    }
+
+    public static void writeTxtToFile(String s, String tmpPath, String imgMessageFileName) {
+        makeFilePath(tmpPath, imgMessageFileName);
+        String strFilePath = tmpPath+"/"+imgMessageFileName;
+        String strContent = s + "\r\n";
+        try {
+            File file = new File(strFilePath);
+            if (!file.exists()) {
+                Log.d("Tony", "Create the file:" + strFilePath);
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+            RandomAccessFile raf = new RandomAccessFile(file, "rwd");
+            raf.seek(file.length());
+            raf.write(strContent.getBytes());
+            raf.close();
+        } catch (Exception e) {
+            Log.e("Tony", "Error on write File:" + e);
+        }
+    }
+
+    public static List<String> readTxtFromFile(String tmpPath, String imgMessageFileName) {
+        List<String> mesgList = new ArrayList<String>();
+        makeFilePath(tmpPath, imgMessageFileName);
+        String strFilePath = tmpPath+"/"+imgMessageFileName;
+        try {
+            File file = new File(strFilePath);
+            if (!file.exists()) {
+                Log.d("Tony", "Create the file:" + strFilePath);
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+            }
+            RandomAccessFile raf = new RandomAccessFile(file, "rwd");
+            raf.seek(0);
+            while(raf.getFilePointer() != file.length()) {
+                mesgList.add(raf.readLine());
+            }
+            raf.close();
+            return mesgList;
+        } catch (Exception e) {
+            Log.e("Tony", "Error on read File:" + e);
+            return null;
+        }
+    }
+
+    public static void clearFile(String filePath, String fileName) {
+        try {
+            File file = new File(filePath +"/"+ fileName);
+            if (file.exists()) {
+                file.delete();
+                Log.i("Tony","Clear file");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static File makeFilePath(String filePath, String fileName) {
+        File file = null;
+        try {
+            File tmpDir = new File(filePath);
+            if (!tmpDir.exists()){
+                tmpDir.mkdirs();
+            }
+            file = new File(filePath + "/" + fileName);
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file;
     }
 
 }

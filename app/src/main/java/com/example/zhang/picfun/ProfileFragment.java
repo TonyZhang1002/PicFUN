@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +29,9 @@ public class ProfileFragment extends ListFragment {
     private View view;
     Context applicationContext = MainActivity.getContextOfApplication();
     SharedPreferences sharedPreferences = applicationContext.getSharedPreferences("myImgNameList", MODE_PRIVATE);
+
+    String tmpPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + "picFun";
+    String imgMessageFileName = "mesg.txt";
 
     private void createProfile() {
         Profile defaultProfile = new Profile(R.drawable.default_avater, "Default user");
@@ -78,6 +82,7 @@ public class ProfileFragment extends ListFragment {
         }
         editor.putInt("FileSize",0);
         editor.commit();
+        MainActivity.clearFile(tmpPath,imgMessageFileName);
         Log.i("Tony","All clear");
         Log.i("Tony",Integer.toString(sharedPreferences.getInt("FileSize",0)));
         HomeFragment.refreshFlag = true;

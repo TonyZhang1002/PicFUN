@@ -14,7 +14,7 @@ import org.apache.commons.net.ftp.FTPReply;
 
 /*
     Here is the FTP connecting utility class
-    @author zhang
+    @author
  */
 
 public class FTPutils {
@@ -33,7 +33,7 @@ public class FTPutils {
 
     /*
     Here we get the instance of this class
-    @author zhang
+    @author
      */
     public  static FTPutils getInstance() {
         if (ftpUtilsInstance == null)
@@ -50,7 +50,7 @@ public class FTPutils {
     @param UserName       FTP service user name
     @param UserPassword       FTP service user password
     @return
-    @author zhang
+    @author
      */
     public boolean initFTPSetting(String FTPUrl, int FTPPort, String UserName, String UserPassword)
     {
@@ -96,7 +96,7 @@ public class FTPutils {
     @param FilePath      the upload file's path
     @param FileName      the file's name
     @return         true is success
-    @author zhang
+    @author
      */
     public boolean uploadFile(String FilePath, String FileName) {
 
@@ -145,7 +145,7 @@ public class FTPutils {
     @param FilePath      the download file's storing directory
     @param FileName      the file's name in the remote server
     @return         true is success
-    @author zhang
+    @author
      */
     public boolean downLoadFile(String FilePath, String FileName) {
 
